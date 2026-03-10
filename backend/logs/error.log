@@ -22,3 +22,27 @@
 [2026-03-10T18:02:58.745Z] [ERROR] [sirep-nexus]: 404 - User not found - /api/users/64a1b2c3d4e5f6a7b8c9d0e1 - GET - ::ffff:127.0.0.1
 [2026-03-10T18:02:58.765Z] [ERROR] [sirep-nexus]: 404 - User not found - /api/users/64a1b2c3d4e5f6a7b8c9d0e1 - PUT - ::ffff:127.0.0.1
 [2026-03-10T18:02:58.772Z] [ERROR] [sirep-nexus]: 404 - User not found - /api/users/64a1b2c3d4e5f6a7b8c9d0e1 - DELETE - ::ffff:127.0.0.1
+[2026-03-10T18:03:37.313Z] [ERROR] [sirep-nexus]: 409 - Email already registered - /api/auth/register - POST - ::ffff:127.0.0.1
+[2026-03-10T18:03:37.329Z] [ERROR] [sirep-nexus]: 401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1
+[2026-03-10T18:03:37.350Z] [ERROR] [sirep-nexus]: 401 - No authentication token provided - /api/auth/me - GET - ::ffff:127.0.0.1
+[2026-03-10T18:03:37.358Z] [ERROR] [sirep-nexus]: 401 - Invalid or expired refresh token - /api/auth/refresh-token - POST - ::ffff:127.0.0.1
+[2026-03-10T18:03:37.363Z] [ERROR] [sirep-nexus]: 401 - No authentication token provided - /api/auth/logout - POST - ::ffff:127.0.0.1
+[2026-03-10T18:03:37.716Z] [ERROR] [sirep-nexus]: 404 - User not found - /api/users/64a1b2c3d4e5f6a7b8c9d0e1 - GET - ::ffff:127.0.0.1
+[2026-03-10T18:03:37.729Z] [ERROR] [sirep-nexus]: 404 - User not found - /api/users/64a1b2c3d4e5f6a7b8c9d0e1 - PUT - ::ffff:127.0.0.1
+[2026-03-10T18:03:37.734Z] [ERROR] [sirep-nexus]: 404 - User not found - /api/users/64a1b2c3d4e5f6a7b8c9d0e1 - DELETE - ::ffff:127.0.0.1
+[2026-03-10T18:03:57.826Z] [ERROR] [sirep-nexus]: 409 - Email already registered - /api/auth/register - POST - ::ffff:127.0.0.1
+[2026-03-10T18:03:57.835Z] [ERROR] [sirep-nexus]: 401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1
+[2026-03-10T18:03:57.855Z] [ERROR] [sirep-nexus]: 401 - No authentication token provided - /api/auth/me - GET - ::ffff:127.0.0.1
+[2026-03-10T18:03:57.861Z] [ERROR] [sirep-nexus]: 401 - Invalid or expired refresh token - /api/auth/refresh-token - POST - ::ffff:127.0.0.1
+[2026-03-10T18:03:57.866Z] [ERROR] [sirep-nexus]: 401 - No authentication token provided - /api/auth/logout - POST - ::ffff:127.0.0.1
+[2026-03-10T18:03:58.199Z] [ERROR] [sirep-nexus]: 404 - User not found - /api/users/64a1b2c3d4e5f6a7b8c9d0e1 - GET - ::ffff:127.0.0.1
+[2026-03-10T18:03:58.211Z] [ERROR] [sirep-nexus]: 404 - User not found - /api/users/64a1b2c3d4e5f6a7b8c9d0e1 - PUT - ::ffff:127.0.0.1
+[2026-03-10T18:03:58.214Z] [ERROR] [sirep-nexus]: 404 - User not found - /api/users/64a1b2c3d4e5f6a7b8c9d0e1 - DELETE - ::ffff:127.0.0.1
+[2026-03-10T18:05:36.553Z] [ERROR] [sirep-nexus]: 409 - Email already registered - /api/auth/register - POST - ::ffff:127.0.0.1
+[2026-03-10T18:05:36.565Z] [ERROR] [sirep-nexus]: 401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1
+[2026-03-10T18:05:36.575Z] [ERROR] [sirep-nexus]: 401 - No authentication token provided - /api/auth/me - GET - ::ffff:127.0.0.1
+[2026-03-10T18:05:36.583Z] [ERROR] [sirep-nexus]: 401 - Invalid or expired refresh token - /api/auth/refresh-token - POST - ::ffff:127.0.0.1
+[2026-03-10T18:05:36.589Z] [ERROR] [sirep-nexus]: 401 - No authentication token provided - /api/auth/logout - POST - ::ffff:127.0.0.1
+[2026-03-10T18:05:36.973Z] [ERROR] [sirep-nexus]: 404 - User not found - /api/users/64a1b2c3d4e5f6a7b8c9d0e1 - GET - ::ffff:127.0.0.1
+[2026-03-10T18:05:36.986Z] [ERROR] [sirep-nexus]: 404 - User not found - /api/users/64a1b2c3d4e5f6a7b8c9d0e1 - PUT - ::ffff:127.0.0.1
+[2026-03-10T18:05:36.990Z] [ERROR] [sirep-nexus]: 404 - User not found - /api/users/64a1b2c3d4e5f6a7b8c9d0e1 - DELETE - ::ffff:127.0.0.1

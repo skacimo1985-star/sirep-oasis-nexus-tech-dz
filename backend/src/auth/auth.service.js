@@ -97,12 +97,15 @@ const enableTwoFactor = async (userId) => {
   return { secret, otpAuthUrl: `otpauth://totp/SirepNexus:${user.email}?secret=${secret}` };
 };
 
+// NOTE: This is a scaffold implementation. For production, replace with a proper TOTP
+// library (e.g., speakeasy / otplib) that validates RFC 6238 time-based one-time passwords
+// instead of comparing the token directly to the stored secret.
 const verifyTwoFactor = async (userId, token) => {
   const user = await User.findById(userId).select('+twoFactorSecret');
   if (!user) {
     throw new AppError('User not found', 404);
   }
-  if (token !== user.twoFactorSecret) {
+  if (!user.twoFactorSecret || token !== user.twoFactorSecret) {
     throw new AppError('Invalid 2FA token', 401);
   }
   user.twoFactorEnabled = true;
