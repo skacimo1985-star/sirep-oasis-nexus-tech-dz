@@ -1,0 +1,248 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── CSS Custom Properties ─────────────────────────────────────────── */
+:root {
+  /* Oasis green palette */
+  --color-primary:         #15803d;
+  --color-primary-light:   #22c55e;
+  --color-primary-dark:    #14532d;
+  --color-primary-bg:      #f0fdf4;
+
+  /* Sand/desert accent */
+  --color-accent:          #ca8a04;
+  --color-accent-light:    #fde047;
+  --color-accent-dark:     #854d0e;
+
+  /* Neutral surface */
+  --color-surface:         #ffffff;
+  --color-surface-alt:     #f8fafc;
+  --color-border:          #e2e8f0;
+
+  /* Status colours */
+  --color-success:         #16a34a;
+  --color-warning:         #d97706;
+  --color-danger:          #dc2626;
+  --color-info:            #0284c7;
+
+  /* Typography */
+  --color-text-primary:    #0f172a;
+  --color-text-secondary:  #475569;
+  --color-text-muted:      #94a3b8;
+
+  /* Sidebar */
+  --sidebar-width:         260px;
+  --topbar-height:         64px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+/* ─── Base Reset ──────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--color-surface-alt);
+  color: var(--color-text-primary);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── Scrollbar Styling ───────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-surface-alt);
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* ─── Arabic Text ─────────────────────────────────────────────────────── */
+.arabic {
+  font-family: 'Noto Naskh Arabic', Arabic, serif;
+  direction: rtl;
+  text-align: right;
+}
+
+.arabic-inline {
+  font-family: 'Noto Naskh Arabic', Arabic, serif;
+  direction: rtl;
+  unicode-bidi: embed;
+}
+
+/* ─── Component Utilities ─────────────────────────────────────────────── */
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg
+           bg-oasis-600 text-white font-medium text-sm
+           hover:bg-oasis-700 active:bg-oasis-800
+           focus:outline-none focus:ring-2 focus:ring-oasis-500 focus:ring-offset-2
+           disabled:opacity-50 disabled:cursor-not-allowed
+           transition-colors duration-200;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg
+           bg-white text-oasis-700 font-medium text-sm border border-oasis-200
+           hover:bg-oasis-50 active:bg-oasis-100
+           focus:outline-none focus:ring-2 focus:ring-oasis-500 focus:ring-offset-2
+           disabled:opacity-50 disabled:cursor-not-allowed
+           transition-colors duration-200;
+  }
+
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg
+           bg-red-600 text-white font-medium text-sm
+           hover:bg-red-700 active:bg-red-800
+           focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2
+           disabled:opacity-50 disabled:cursor-not-allowed
+           transition-colors duration-200;
+  }
+
+  .card {
+    @apply bg-white rounded-xl border border-slate-200 shadow-sm p-6;
+  }
+
+  .card-header {
+    @apply flex items-center justify-between mb-4 pb-3 border-b border-slate-100;
+  }
+
+  .input-field {
+    @apply w-full px-3 py-2 rounded-lg border border-slate-200
+           bg-white text-slate-900 text-sm placeholder-slate-400
+           focus:outline-none focus:ring-2 focus:ring-oasis-500 focus:border-transparent
+           disabled:bg-slate-50 disabled:cursor-not-allowed
+           transition-colors duration-200;
+  }
+
+  .input-error {
+    @apply border-red-400 focus:ring-red-400;
+  }
+
+  .badge {
+    @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  .badge-success {
+    @apply badge bg-oasis-100 text-oasis-800;
+  }
+
+  .badge-warning {
+    @apply badge bg-sand-100 text-sand-800;
+  }
+
+  .badge-danger {
+    @apply badge bg-red-100 text-red-800;
+  }
+
+  .badge-info {
+    @apply badge bg-sky-100 text-sky-800;
+  }
+
+  .badge-neutral {
+    @apply badge bg-slate-100 text-slate-600;
+  }
+
+  .status-dot {
+    @apply inline-block w-2 h-2 rounded-full;
+  }
+
+  .status-dot-online  { @apply status-dot bg-oasis-500; }
+  .status-dot-warning { @apply status-dot bg-sand-400; }
+  .status-dot-offline { @apply status-dot bg-red-500; }
+
+  .table-base {
+    @apply w-full text-sm text-left border-collapse;
+  }
+
+  .table-base th {
+    @apply px-4 py-3 bg-slate-50 text-slate-600 font-semibold border-b border-slate-200 whitespace-nowrap;
+  }
+
+  .table-base td {
+    @apply px-4 py-3 border-b border-slate-100 text-slate-700;
+  }
+
+  .table-base tr:last-child td {
+    @apply border-b-0;
+  }
+
+  .table-base tbody tr:hover td {
+    @apply bg-oasis-50/40;
+  }
+
+  .sidebar-link {
+    @apply flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
+           text-slate-600 hover:bg-oasis-50 hover:text-oasis-700
+           transition-colors duration-150;
+  }
+
+  .sidebar-link-active {
+    @apply bg-oasis-100 text-oasis-800 font-semibold;
+  }
+
+  .page-title {
+    @apply text-2xl font-bold text-slate-900;
+  }
+
+  .section-title {
+    @apply text-lg font-semibold text-slate-800;
+  }
+}
+
+/* ─── Alert Severity Colours ──────────────────────────────────────────── */
+.alert-critical { @apply border-l-4 border-red-500 bg-red-50; }
+.alert-high     { @apply border-l-4 border-orange-500 bg-orange-50; }
+.alert-medium   { @apply border-l-4 border-yellow-500 bg-yellow-50; }
+.alert-low      { @apply border-l-4 border-sky-500 bg-sky-50; }
+.alert-info     { @apply border-l-4 border-slate-400 bg-slate-50; }
+
+/* ─── Animations ──────────────────────────────────────────────────────── */
+.animate-fade-in  { animation: fadeIn 0.3s ease-in-out; }
+.animate-slide-in { animation: slideIn 0.3s ease-out; }
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { transform: translateX(-10px); opacity: 0; }
+  to   { transform: translateX(0);     opacity: 1; }
+}
+
+/* ─── Focus Visible ───────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--color-primary-light);
+  outline-offset: 2px;
+}
+
+/* ─── Loading Skeleton ────────────────────────────────────────────────── */
+.skeleton {
+  @apply bg-slate-200 rounded animate-pulse;
+}
+
+/* ─── Oasis gradient header ───────────────────────────────────────────── */
+.oasis-gradient {
+  background: linear-gradient(135deg, #14532d 0%, #15803d 40%, #166534 70%, #854d0e 100%);
+}
