@@ -1,8 +1,7 @@
-# SIREP OASIS NEXUS TECH DZ
+# SIREP OASIS NEXUS WEFEH DZ
 
 > **منصة رقمية ذكية لإدارة الواحات الصحراوية بشكل مستدام**  
-> Smart digital platform for sustainable Saharan oasis management
-
+> Smart Integrated Renewable Energy Platform 
 ---
 
 ## Fondateur & Propriétaire
