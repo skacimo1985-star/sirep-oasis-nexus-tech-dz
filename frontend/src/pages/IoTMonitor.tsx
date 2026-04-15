@@ -67,7 +67,7 @@ export default function IoTMonitor() {
   useEffect(() => {
     if (!accessToken) return;
 
-        const _socket = getSocket(accessToken); // stored for cleanup via socketCleanupRef
+                getSocket(accessToken); // establishes Socket.io connection for real-time updates
 
     const cleanups = [
       onSocketEvent('sensor:update', (sensor) => updateSensor(sensor.id, sensor)),
