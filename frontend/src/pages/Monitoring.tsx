@@ -68,7 +68,7 @@ export default function Monitoring() {
   useEffect(() => {
     if (!accessToken) return;
 
-    const socket = getSocket(accessToken);
+        const _socket = getSocket(accessToken); // stored for cleanup via socketCleanupRef
 
     const cleanups = [
       onSocketEvent('alert:new',     (alert)  => addAlert(alert)),
