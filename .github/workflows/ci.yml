@@ -9,18 +9,16 @@ on:
 env:
   NODE_VERSION: '18'
 
-# Default minimal permissions for all jobs
 permissions:
   contents: read
 
 jobs:
-  # ─── Backend Tests ────────────────────────────────────────────────────────────
+  # ─── Backend Tests ───────────────────────────────────────────────────
   backend-test:
     name: Backend Tests
     runs-on: ubuntu-latest
     permissions:
       contents: read
-
     services:
       mongodb:
         image: mongo:7.0
@@ -31,26 +29,21 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
           cache-dependency-path: backend/package-lock.json
-
       - name: Install backend dependencies
         working-directory: backend
         run: npm ci
-
       - name: Run ESLint
         working-directory: backend
         run: npm run lint
-
       - name: Run backend tests
         working-directory: backend
         env:
@@ -64,7 +57,6 @@ jobs:
           ALLOWED_ORIGINS: http://localhost:3000
           PORT: 5001
         run: npm test -- --coverage
-
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
         if: always()
@@ -73,50 +65,43 @@ jobs:
           path: backend/coverage/
           retention-days: 7
 
-  # ─── Frontend Build & Lint ────────────────────────────────────────────────────
+  # ─── Frontend Build & Lint ────────────────────────────────────────────
   frontend-build:
     name: Frontend Build
     runs-on: ubuntu-latest
     permissions:
       contents: read
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
       - name: Verify frontend lock file exists
         run: |
           if [ ! -f frontend/package-lock.json ]; then
-            echo "::error::frontend/package-lock.json is missing. Run 'npm install' inside the frontend/ directory and commit the generated lock file."
+            echo "::error::frontend/package-lock.json is missing. Run 'npm install' in frontend/ and commit the lock file."
             exit 1
           fi
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
-
       - name: Install frontend dependencies
         working-directory: frontend
         run: npm ci
-
       - name: Run ESLint
         working-directory: frontend
-        run: npm run lint
-
+        # fix: use npx directly so ESLint reports zero-tolerance on errors
+        run: npx eslint ./src --ext .ts,.tsx --max-warnings 0
       - name: TypeScript type check
         working-directory: frontend
         run: npm run type-check
-
       - name: Build frontend
         working-directory: frontend
         env:
           VITE_API_URL: http://localhost:5000/api
           VITE_SOCKET_URL: http://localhost:5000
         run: npm run build
-
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
@@ -124,33 +109,29 @@ jobs:
           path: frontend/dist/
           retention-days: 7
 
-  # ─── Security Scan ─────────────────────────────────────────────────────────────
+  # ─── Security Scan ───────────────────────────────────────────────────────────
   security-scan:
     name: Security Audit
     runs-on: ubuntu-latest
     permissions:
       contents: read
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-
       - name: Audit backend dependencies
         working-directory: backend
         run: npm audit --audit-level=high
         continue-on-error: true
-
       - name: Audit frontend dependencies
         working-directory: frontend
         run: npm audit --audit-level=high
         continue-on-error: true
 
-  # ─── Docker Build ─────────────────────────────────────────────────────────────
+  # ─── Docker Build ────────────────────────────────────────────────────────────
   docker-build:
     name: Docker Build
     runs-on: ubuntu-latest
@@ -158,14 +139,11 @@ jobs:
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
     permissions:
       contents: read
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-
       - name: Build backend Docker image
         uses: docker/build-push-action@v5
         with:
@@ -174,7 +152,6 @@ jobs:
           tags: sirep-backend:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
       - name: Build frontend Docker image
         uses: docker/build-push-action@v5
         with:
