@@ -4,7 +4,7 @@ import type { Sensor, Alert, DashboardStats, SystemHealth } from '@/store/dataSt
 
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL ?? '';
 
-/* ── REST API calls ──────────────────────────────────────────────────── */
+/* ── REST API calls ─────────────────────────────────────────── */
 
 export async function fetchSensors(): Promise<Sensor[]> {
   const { data } = await apiClient.get<{ data: Sensor[] }>('/sensors');
@@ -39,37 +39,27 @@ export async function fetchAlerts(params?: {
   limit?: number;
   page?: number;
 }): Promise<Alert[]> {
-  const { data } = await apiClient.get<{ data: Alert[] }>('/alerts', {
-    params,
-  });
+  const { data } = await apiClient.get<{ data: Alert[] }>('/alerts', { params });
   return data.data;
 }
 
 export async function acknowledgeAlert(id: string): Promise<Alert> {
-  const { data } = await apiClient.patch<{ data: Alert }>(
-    `/alerts/${id}/acknowledge`
-  );
+  const { data } = await apiClient.patch<{ data: Alert }>(`/alerts/${id}/acknowledge`);
   return data.data;
 }
 
 export async function resolveAlert(id: string): Promise<Alert> {
-  const { data } = await apiClient.patch<{ data: Alert }>(
-    `/alerts/${id}/resolve`
-  );
+  const { data } = await apiClient.patch<{ data: Alert }>(`/alerts/${id}/resolve`);
   return data.data;
 }
 
 export async function fetchDashboardStats(): Promise<DashboardStats> {
-  const { data } = await apiClient.get<{ data: DashboardStats }>(
-    '/dashboard/stats'
-  );
+  const { data } = await apiClient.get<{ data: DashboardStats }>('/dashboard/stats');
   return data.data;
 }
 
 export async function fetchSystemHealth(): Promise<SystemHealth> {
-  const { data } = await apiClient.get<{ data: SystemHealth }>(
-    '/monitoring/health'
-  );
+  const { data } = await apiClient.get<{ data: SystemHealth }>('/monitoring/health');
   return data.data;
 }
 
@@ -97,35 +87,31 @@ export async function fetchThingSpeakData(
 ): Promise<{ channel: ThingSpeakChannel; feeds: ThingSpeakFeed[] }> {
   const { data } = await apiClient.get<{
     data: { channel: ThingSpeakChannel; feeds: ThingSpeakFeed[] };
-  }>(`/iot/thingspeak/${channelId}`, {
-    params: { apiKey, results },
-  });
+  }>(`/iot/thingspeak/${channelId}`, { params: { apiKey, results } });
   return data.data;
 }
 
-/* ── Socket.io connection ────────────────────────────────────────────── */
+/* ── Socket.io connection ───────────────────────────────────── */
 
 export type SocketEventMap = {
-  'sensor:update':   Sensor;
-  'sensor:reading':  { sensorId: string; reading: Sensor['readings'][number] };
-  'alert:new':       Alert;
-  'alert:updated':   Alert;
-  'health:update':   SystemHealth;
-  'stats:update':    DashboardStats;
+  'sensor:update': Sensor;
+  'sensor:reading': { sensorId: string; reading: Sensor['readings'][number] };
+  'alert:new': Alert;
+  'alert:updated': Alert;
+  'health:update': SystemHealth;
+  'stats:update': DashboardStats;
 };
 
 let socketInstance: Socket | null = null;
 
 export function getSocket(token: string): Socket {
   if (socketInstance?.connected) return socketInstance;
-
   socketInstance = io(SOCKET_URL, {
     auth: { token },
     transports: ['websocket', 'polling'],
     reconnectionAttempts: 5,
-    reconnectionDelay: 2000,
+    reconnectionDelay: 2_000,
   });
-
   return socketInstance;
 }
 
@@ -136,12 +122,14 @@ export function disconnectSocket(): void {
   }
 }
 
+// fix: removed shadow variable 'socket' — use socketInstance directly
 export function onSocketEvent<K extends keyof SocketEventMap>(
   event: K,
   handler: (data: SocketEventMap[K]) => void
 ): () => void {
-  const socket = socketInstance;
-  if (!socket) return () => undefined;
-  socket.on(event, handler as Parameters<typeof socket.on>[1]);
-  return () => socket.off(event, handler as Parameters<typeof socket.off>[1]);
+  if (!socketInstance) return () => undefined;
+  socketInstance.on(event, handler as Parameters<typeof socketInstance.on>[1]);
+  return () => {
+    socketInstance?.off(event, handler as Parameters<typeof socketInstance.off>[1]);
+  };
 }
