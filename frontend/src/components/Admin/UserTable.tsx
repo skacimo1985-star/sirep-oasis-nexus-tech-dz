@@ -3,7 +3,6 @@ import {
   Pencil,
   Trash2,
   ShieldCheck,
-  Eye,
   Search,
   ChevronLeft,
   ChevronRight,
