@@ -5,7 +5,6 @@ const router = express.Router();
 const { authenticate } = require('../middleware/auth');
 const chargilyService = require('../services/chargily.service');
 const logger = require('../utils/logger');
-const crypto = require('crypto');
 const config = require('../config/env');
 
 /**
@@ -54,7 +53,7 @@ router.get('/checkout/:id', authenticate, async (req, res, next) => {
 
 /**
  * POST /api/payments/webhook
- * Chargily Pay signed webhook — raw body required (registered in app.js before express.json)
+ * Chargily Pay signed webhook - raw body required (registered in app.js before express.json)
  */
 router.post('/webhook', async (req, res) => {
   const signature = req.headers['signature'];
@@ -74,13 +73,13 @@ router.post('/webhook', async (req, res) => {
   let event;
   try {
     event = JSON.parse(rawBody.toString('utf8'));
-  } catch {
+  } catch (parseErr) {
+    logger.error('Chargily webhook: invalid JSON', parseErr);
     return res.status(400).json({ error: 'Invalid JSON' });
   }
 
   logger.info(`Chargily webhook event: ${event.type}`, { id: event.id });
 
-  // Handle events
   switch (event.type) {
     case 'checkout.paid':
       await chargilyService.handleCheckoutPaid(event.data);
