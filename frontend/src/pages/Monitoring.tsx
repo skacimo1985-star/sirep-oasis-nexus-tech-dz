@@ -1,213 +1,228 @@
-import { useEffect, useCallback, useRef } from 'react';
-import { Activity, RefreshCw, Wifi } from 'lucide-react';
-import { useAuthStore } from '@/store/authStore';
-import { useDataStore } from '@/store/dataStore';
-import {
-  fetchSystemHealth,
-  fetchAlerts,
-  acknowledgeAlert,
-  resolveAlert,
-  getSocket,
-  disconnectSocket,
-  onSocketEvent,
-} from '@/services/monitoring.service';
-import AlertsPanel from '@/components/Monitoring/AlertsPanel';
-import SystemHealthDisplay from '@/components/Monitoring/SystemHealth';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { getAlerts, acknowledgeAlert, resolveAlert } from '../api/alerts';
+import { getSystemHealth } from '../api/health';
+import { getSocket } from '../utils/socket';
+import type { Alert, SystemHealth } from '../types';
 
-export default function Monitoring() {
-  const { accessToken } = useAuthStore();
+const Monitoring: React.FC = () => {
+  const { accessToken } = useAuth();
+  const navigate = useNavigate();
 
-  const {
-    alerts,
-    systemHealth,
-    isLoadingAlerts,
-    isLoadingHealth,
-    setAlerts,
-    updateAlert,
-    addAlert,
-    setSystemHealth,
-    setLoadingAlerts,
-    setLoadingHealth,
-    setAlertsError,
-  } = useDataStore();
+  const [alerts, setAlerts] = useState<Alert[]>([]);
+  const [systemHealth, setSystemHealth] = useState<SystemHealth | null>(null);
+  const [loadingAlerts, setLoadingAlerts] = useState(false);
+  const [loadingHealth, setLoadingHealth] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const socketCleanupRef = useRef<(() => void)[]>([]);
-  const lastHealthRef    = useRef<string>('');
+  const socketCleanupRef = useRef<(() => void) | null>(null);
+
+  const updateAlert = useCallback(
+    (id: string, updated: Alert) => {
+      setAlerts((prev) =>
+        prev.map((a) => (a.id === id ? { ...a, ...updated } : a))
+      );
+    },
+    []
+  );
 
   const loadAlerts = useCallback(async () => {
+    if (!accessToken) return;
     setLoadingAlerts(true);
     try {
-      const data = await fetchAlerts({ limit: 100 });
+      const data = await getAlerts(accessToken);
       setAlerts(data);
-      setAlertsError(null);
-    } catch {
-      setAlertsError('Impossible de charger les alertes.');
+    } catch (err) {
+      setError('Failed to load alerts');
     } finally {
       setLoadingAlerts(false);
     }
-  }, [setLoadingAlerts, setAlerts, setAlertsError]);
+  }, [accessToken]);
 
   const loadHealth = useCallback(async () => {
+    if (!accessToken) return;
     setLoadingHealth(true);
     try {
-      const data = await fetchSystemHealth();
+      const data = await getSystemHealth(accessToken);
       setSystemHealth(data);
-    } catch {
-      // health fetch failed — keep last known state
+    } catch (err) {
+      setError('Failed to load system health');
     } finally {
       setLoadingHealth(false);
     }
-  }, [setLoadingHealth, setSystemHealth]);
+  }, [accessToken]);
 
   const handleRefresh = useCallback(() => {
     void loadAlerts();
     void loadHealth();
   }, [loadAlerts, loadHealth]);
 
+  /* Initial data load */
+  useEffect(() => {
+    if (!accessToken) {
+      navigate('/login');
+      return;
+    }
+    void loadAlerts();
+    void loadHealth();
+  }, [accessToken, navigate, loadAlerts, loadHealth]);
+
+  /* Polling every 30s */
+  useEffect(() => {
+    if (!accessToken) return;
+    const interval = setInterval(() => {
+      void loadAlerts();
+      void loadHealth();
+    }, 30000);
+    return () => clearInterval(interval);
+  }, [accessToken, loadAlerts, loadHealth]);
+
   /* Socket.io real-time updates */
   useEffect(() => {
     if (!accessToken) return;
 
-        const _socket = getSocket(accessToken); // stored for cleanup via socketCleanupRef
+    const socket = getSocket(accessToken); // establishes Socket.io connection for real-time updates
 
-    const cleanups = [
-      onSocketEvent('alert:new',     (alert)  => addAlert(alert)),
-      onSocketEvent('alert:updated', (alert)  => updateAlert(alert.id, alert)),
-      onSocketEvent('health:update', (health) => {
-        const key = JSON.stringify(health);
-        if (key !== lastHealthRef.current) {
-          lastHealthRef.current = key;
-          setSystemHealth(health);
-        }
-      }),
-    ];
-    socketCleanupRef.current = cleanups;
+    socket.on('alert:new', (alert: Alert) => {
+      setAlerts((prev) => [alert, ...prev]);
+    });
+
+    socket.on('alert:updated', (alert: Alert) => {
+      updateAlert(alert.id, alert);
+    });
+
+    socket.on('health:updated', (health: SystemHealth) => {
+      setSystemHealth(health);
+    });
+
+    socketCleanupRef.current = () => {
+      socket.off('alert:new');
+      socket.off('alert:updated');
+      socket.off('health:updated');
+    };
 
     return () => {
-      cleanups.forEach((fn) => fn());
-      disconnectSocket();
+      socketCleanupRef.current?.();
     };
-  }, [accessToken, addAlert, updateAlert, setSystemHealth]);
-
-  useEffect(() => {
-    void loadAlerts();
-    void loadHealth();
-
-    /* Poll health every 30 seconds */
-    const interval = setInterval(() => void loadHealth(), 30_000);
-    return () => clearInterval(interval);
-  }, [loadAlerts, loadHealth]);
+  }, [accessToken, updateAlert]);
 
   async function handleAcknowledge(id: string) {
-    const updated = await acknowledgeAlert(id);
-    updateAlert(id, updated);
+    if (!accessToken) return;
+    try {
+      const updated = await acknowledgeAlert(id, accessToken);
+      updateAlert(id, updated);
+    } catch {
+      setError('Failed to acknowledge alert');
+    }
   }
 
   async function handleResolve(id: string) {
-    const updated = await resolveAlert(id);
-    updateAlert(id, updated);
+    if (!accessToken) return;
+    try {
+      const updated = await resolveAlert(id, accessToken);
+      updateAlert(id, updated);
+    } catch {
+      setError('Failed to resolve alert');
+    }
   }
 
-  const activeCount   = alerts.filter((a) => a.status === 'active').length;
+  const activeCount = alerts.filter((a) => a.status === 'active').length;
   const criticalCount = alerts.filter(
     (a) => a.severity === 'critical' && a.status === 'active'
   ).length;
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <h1 className="page-title flex items-center gap-2">
-            <Activity className="w-6 h-6 text-oasis-600" />
-            Monitoring Système
-          </h1>
-          <p className="text-slate-500 text-sm mt-0.5">
-            Santé du système et alertes ·{' '}
-            <span className="arabic-inline">صحة النظام والتنبيهات</span>
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-oasis-50 text-oasis-700 text-xs font-medium">
-            <Wifi className="w-3.5 h-3.5" />
-            Temps réel
-          </div>
-          <button
-            onClick={handleRefresh}
-            disabled={isLoadingAlerts || isLoadingHealth}
-            className="btn-secondary"
-          >
-            <RefreshCw
-              className={`w-4 h-4 ${
-                isLoadingAlerts || isLoadingHealth ? 'animate-spin' : ''
-              }`}
-            />
-            Actualiser
-          </button>
-        </div>
-      </div>
+    <div className="monitoring-page">
+      <header className="monitoring-header">
+        <h1>System Monitoring</h1>
+        <button onClick={handleRefresh} disabled={loadingAlerts || loadingHealth}>
+          {loadingAlerts || loadingHealth ? 'Refreshing...' : 'Refresh'}
+        </button>
+      </header>
 
-      {/* Critical alert banner */}
-      {criticalCount > 0 && (
-        <div className="rounded-xl bg-red-600 text-white px-5 py-3 flex items-center gap-3 animate-pulse-slow">
-          <Activity className="w-5 h-5 shrink-0" />
-          <div>
-            <p className="font-semibold">
-              ⚠ {criticalCount} alerte(s) critique(s) active(s)
-            </p>
-            <p className="text-sm text-red-200 arabic-inline">
-              {criticalCount} تنبيه حرج نشط
-            </p>
-          </div>
+      {error && (
+        <div className="error-banner" role="alert">
+          {error}
+          <button onClick={() => setError(null)}>Dismiss</button>
         </div>
       )}
 
-      {/* Two-column layout */}
-      <div className="grid grid-cols-1 xl:grid-cols-5 gap-6">
-        {/* System health — left 2 cols */}
-        <div className="xl:col-span-2 card">
-          <div className="card-header">
-            <div>
-              <h2 className="section-title flex items-center gap-2">
-                <Activity className="w-4 h-4 text-oasis-600" />
-                Santé du Système
-              </h2>
-              <p className="text-xs text-slate-400 arabic-inline">صحة النظام</p>
+      <section className="health-summary">
+        <h2>System Health</h2>
+        {systemHealth ? (
+          <div className="health-grid">
+            <div className="health-card">
+              <span>Status</span>
+              <strong className={`status-${systemHealth.status}`}>
+                {systemHealth.status}
+              </strong>
+            </div>
+            <div className="health-card">
+              <span>Uptime</span>
+              <strong>{systemHealth.uptime}</strong>
+            </div>
+            <div className="health-card">
+              <span>CPU</span>
+              <strong>{systemHealth.cpu}%</strong>
+            </div>
+            <div className="health-card">
+              <span>Memory</span>
+              <strong>{systemHealth.memory}%</strong>
             </div>
           </div>
-          <SystemHealthDisplay
-            health={systemHealth}
-            isLoading={isLoadingHealth && !systemHealth}
-            lastUpdated={systemHealth ? new Date().toISOString() : undefined}
-          />
-        </div>
+        ) : (
+          <p>{loadingHealth ? 'Loading health data...' : 'No health data available.'}</p>
+        )}
+      </section>
 
-        {/* Alerts panel — right 3 cols */}
-        <div className="xl:col-span-3 card">
-          <div className="card-header">
-            <div>
-              <h2 className="section-title flex items-center gap-2">
-                Alertes
-                <span className="text-xs font-normal text-slate-400 arabic-inline">
-                  التنبيهات
-                </span>
-              </h2>
-            </div>
-            {activeCount > 0 && (
-              <span className="badge badge-danger animate-pulse">
-                {activeCount} active(s)
-              </span>
-            )}
-          </div>
-          <AlertsPanel
-            alerts={alerts}
-            isLoading={isLoadingAlerts && alerts.length === 0}
-            onAcknowledge={handleAcknowledge}
-            onResolve={handleResolve}
-            onRefresh={handleRefresh}
-          />
-        </div>
-      </div>
+      <section className="alerts-section">
+        <h2>
+          Alerts
+          <span className="badge active">{activeCount} active</span>
+          {criticalCount > 0 && (
+            <span className="badge critical">{criticalCount} critical</span>
+          )}
+        </h2>
+
+        {loadingAlerts && alerts.length === 0 ? (
+          <p>Loading alerts...</p>
+        ) : alerts.length === 0 ? (
+          <p>No alerts found.</p>
+        ) : (
+          <ul className="alerts-list">
+            {alerts.map((alert) => (
+              <li
+                key={alert.id}
+                className={`alert-item severity-${alert.severity} status-${alert.status}`}
+              >
+                <div className="alert-info">
+                  <strong>{alert.title}</strong>
+                  <p>{alert.message}</p>
+                  <small>
+                    {alert.severity.toUpperCase()} &bull; {alert.status} &bull;{' '}
+                    {new Date(alert.createdAt).toLocaleString()}
+                  </small>
+                </div>
+                <div className="alert-actions">
+                  {alert.status === 'active' && (
+                    <button onClick={() => void handleAcknowledge(alert.id)}>
+                      Acknowledge
+                    </button>
+                  )}
+                  {alert.status !== 'resolved' && (
+                    <button onClick={() => void handleResolve(alert.id)}>
+                      Resolve
+                    </button>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
     </div>
   );
-}
+};
+
+export default Monitoring;
