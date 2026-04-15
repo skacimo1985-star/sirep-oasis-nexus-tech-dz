@@ -2,7 +2,7 @@
 
 const express = require('express');
 const router = express.Router();
-const { authenticate } = require('../middleware/auth');
+const { authenticate } = require('../middleware/authMiddleware');
 const chargilyService = require('../services/chargily.service');
 const logger = require('../utils/logger');
 const config = require('../config/env');
