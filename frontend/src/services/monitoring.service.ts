@@ -110,8 +110,9 @@ export function getSocket(token: string): Socket {
     auth: { token },
     transports: ['websocket', 'polling'],
     reconnectionAttempts: 5,
-    reconnectionDelay: 2_000,
+    reconnectionDelay: 2000,
   });
+
   return socketInstance;
 }
 
@@ -126,11 +127,8 @@ export function onSocketEvent<K extends keyof SocketEventMap>(
   event: K,
   handler: (data: SocketEventMap[K]) => void
 ): () => void {
-  if (!socketInstance) return () => undefined;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  socketInstance.on(event as string, handler as (...args: any[]) => void);
-  return () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    socketInstance?.off(event as string, handler as (...args: any[]) => void);
-  };
+  const socket = socketInstance;
+  if (!socket) return () => undefined;
+  socket.on(event, handler as Parameters<typeof socket.on>[1]);
+  return () => socket.off(event, handler as Parameters<typeof socket.off>[1]);
 }

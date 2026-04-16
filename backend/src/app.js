@@ -69,15 +69,12 @@ const io = new Server(server, {
 
 io.on('connection', (socket) => {
   logger.info(`Socket connected: ${socket.id}`);
-
   socket.on('subscribe:alerts', () => {
     socket.join('alerts');
   });
-
   socket.on('subscribe:sensorData', (deviceId) => {
     socket.join(`sensor:${deviceId}`);
   });
-
   socket.on('disconnect', () => {
     logger.info(`Socket disconnected: ${socket.id}`);
   });

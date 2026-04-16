@@ -9,6 +9,7 @@ on:
 env:
   NODE_VERSION: '18'
 
+# Default minimal permissions for all jobs
 permissions:
   contents: read
 
