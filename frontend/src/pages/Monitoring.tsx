@@ -64,51 +64,70 @@ export default function Monitoring() {
     void loadHealth();
   }, [loadAlerts, loadHealth]);
 
+  /* Initial data load */
+  useEffect(() => {
+    if (!accessToken) {
+      navigate('/login');
+      return;
+    }
+    void loadAlerts();
+    void loadHealth();
+  }, [accessToken, navigate, loadAlerts, loadHealth]);
+
+  /* Polling every 30s */
+  useEffect(() => {
+    if (!accessToken) return;
+    const interval = setInterval(() => {
+      void loadAlerts();
+      void loadHealth();
+    }, 30000);
+    return () => clearInterval(interval);
+  }, [accessToken, loadAlerts, loadHealth]);
+
   /* Socket.io real-time updates */
   useEffect(() => {
     if (!accessToken) return;
-
     const socket = getSocket(accessToken);
-
-    const cleanups = [
-      onSocketEvent('alert:new',     (alert)  => addAlert(alert)),
-      onSocketEvent('alert:updated', (alert)  => updateAlert(alert.id, alert)),
-      onSocketEvent('health:update', (health) => {
-        const key = JSON.stringify(health);
-        if (key !== lastHealthRef.current) {
-          lastHealthRef.current = key;
-          setSystemHealth(health);
-        }
-      }),
-    ];
-    socketCleanupRef.current = cleanups;
-
-    return () => {
-      cleanups.forEach((fn) => fn());
-      disconnectSocket();
+    socket.on('alert:new', (alert: Alert) => {
+      setAlerts((prev) => [alert, ...prev]);
+    });
+    socket.on('alert:updated', (alert: Alert) => {
+      updateAlert(alert.id, alert);
+    });
+    socket.on('health:update', (health: SystemHealth) => {
+      setSystemHealth(health);
+    });
+    socketCleanupRef.current = () => {
+      socket.off('alert:new');
+      socket.off('alert:updated');
+      socket.off('health:update');
     };
-  }, [accessToken, addAlert, updateAlert, setSystemHealth]);
-
-  useEffect(() => {
-    void loadAlerts();
-    void loadHealth();
-
-    /* Poll health every 30 seconds */
-    const interval = setInterval(() => void loadHealth(), 30_000);
-    return () => clearInterval(interval);
-  }, [loadAlerts, loadHealth]);
+    return () => {
+      socketCleanupRef.current?.();
+    };
+  }, [accessToken, updateAlert]);
 
   async function handleAcknowledge(id: string) {
-    const updated = await acknowledgeAlert(id);
-    updateAlert(id, updated);
+    if (!accessToken) return;
+    try {
+      const updated = await acknowledgeAlert(id, accessToken);
+      updateAlert(id, updated);
+    } catch {
+      setError('Failed to acknowledge alert');
+    }
   }
 
   async function handleResolve(id: string) {
-    const updated = await resolveAlert(id);
-    updateAlert(id, updated);
+    if (!accessToken) return;
+    try {
+      const updated = await resolveAlert(id, accessToken);
+      updateAlert(id, updated);
+    } catch {
+      setError('Failed to resolve alert');
+    }
   }
 
-  const activeCount   = alerts.filter((a) => a.status === 'active').length;
+  const activeCount = alerts.filter((a) => a.status === 'active').length;
   const criticalCount = alerts.filter(
     (a) => a.severity === 'critical' && a.status === 'active'
   ).length;

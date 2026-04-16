@@ -152,7 +152,7 @@ export default function UserTable({
                       {roleLabels[user.role]}
                     </span>
                   </td>
-                  <td>
+                  <td className="px-4 py-3">
                     <button
                       onClick={() => onToggleStatus(user)}
                       className={clsx(
@@ -166,18 +166,20 @@ export default function UserTable({
                       {user.isActive ? 'Actif' : 'Inactif'}
                     </button>
                   </td>
-                  <td>
+                  <td className="px-4 py-3">
                     {user.twoFactorEnabled ? (
-                      <ShieldCheck className="w-4 h-4 text-oasis-600" title="2FA activé" />
+                      <span aria-label="2FA active">
+                        <ShieldCheck className="w-4 h-4 text-oasis-600" />
+                      </span>
                     ) : (
                       <span className="text-slate-300 text-xs">—</span>
                     )}
                   </td>
-                  <td className="text-xs text-slate-500 whitespace-nowrap">
+                  <td className="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">
                     {formatDate(user.lastLoginAt)}
                   </td>
-                  <td>
-                    <div className="flex items-center gap-1">
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-1 justify-end">
                       <button
                         onClick={() => onEdit(user)}
                         className="p-1.5 rounded-lg hover:bg-oasis-50 text-slate-400 hover:text-oasis-600 transition-colors"
@@ -205,7 +207,7 @@ export default function UserTable({
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between text-sm text-slate-500">
+        <div className="p-4 border-t border-slate-200 flex items-center justify-between text-sm text-slate-500">
           <span>
             {filtered.length} utilisateur(s) — page {page}/{totalPages}
           </span>

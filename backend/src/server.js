@@ -1,14 +1,11 @@
 'use strict';
-
 require('dotenv').config();
-
 const { server } = require('./app');
 const connectDB = require('./config/database');
 const config = require('./config/env');
 const logger = require('./utils/logger');
 
 const PORT = config.PORT || 5000;
-
 let httpServer;
 
 const startServer = async () => {
@@ -19,7 +16,7 @@ const startServer = async () => {
     });
   } catch (err) {
     logger.error('Failed to start server:', err);
-    process.exit(1);
+    throw err;
   }
 };
 
@@ -31,10 +28,10 @@ const gracefulShutdown = async (signal) => {
       const mongoose = require('mongoose');
       await mongoose.disconnect();
       logger.info('MongoDB disconnected.');
-      process.exit(0);
+      process.exit(0); // eslint-disable-line no-process-exit
     });
   } else {
-    process.exit(0);
+    process.exit(0); // eslint-disable-line no-process-exit
   }
 };
 
@@ -43,12 +40,12 @@ process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
 process.on('uncaughtException', (err) => {
   logger.error('Uncaught Exception:', err);
-  process.exit(1);
+  throw err;
 });
 
 process.on('unhandledRejection', (reason, promise) => {
   logger.error('Unhandled Rejection at:', promise, 'reason:', reason);
-  process.exit(1);
+  throw new Error('Unhandled Rejection');
 });
 
 startServer();

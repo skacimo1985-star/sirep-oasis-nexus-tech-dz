@@ -1,7 +1,6 @@
 'use strict';
 
 require('dotenv').config();
-
 const Joi = require('joi');
 
 const envSchema = Joi.object({
@@ -22,10 +21,14 @@ const envSchema = Joi.object({
   ENCRYPTION_KEY: Joi.string().required(),
   LOG_LEVEL: Joi.string().valid('error', 'warn', 'info', 'http', 'verbose', 'debug', 'silly').default('info'),
   LOG_DIR: Joi.string().default('logs'),
+  // ── Chargily Pay v2 ────────────────────────────────────────────
+  CHARGILY_SECRET_KEY: Joi.string().optional().allow(''),
+  CHARGILY_SUCCESS_URL: Joi.string().uri().default('http://localhost:3000/payment/success'),
+  CHARGILY_FAILURE_URL: Joi.string().uri().default('http://localhost:3000/payment/failure'),
+  BASE_URL: Joi.string().uri().default('http://localhost:5000'),
 }).unknown(true);
 
 const { error, value: envVars } = envSchema.validate(process.env);
-
 if (error) {
   throw new Error(`Config validation error: ${error.message}`);
 }
@@ -48,6 +51,11 @@ const config = {
   ENCRYPTION_KEY: envVars.ENCRYPTION_KEY,
   LOG_LEVEL: envVars.LOG_LEVEL,
   LOG_DIR: envVars.LOG_DIR,
+  // Chargily Pay
+  CHARGILY_SECRET_KEY: envVars.CHARGILY_SECRET_KEY,
+  CHARGILY_SUCCESS_URL: envVars.CHARGILY_SUCCESS_URL,
+  CHARGILY_FAILURE_URL: envVars.CHARGILY_FAILURE_URL,
+  BASE_URL: envVars.BASE_URL,
 };
 
 module.exports = config;
