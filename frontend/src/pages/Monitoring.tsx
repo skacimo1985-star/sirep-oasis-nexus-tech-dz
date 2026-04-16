@@ -24,6 +24,7 @@ export default function Monitoring() {
     isLoadingAlerts,
     isLoadingHealth,
     setAlerts,
+    addAlert,
     updateAlert,
     setSystemHealth,
     setLoadingAlerts,
@@ -52,7 +53,7 @@ export default function Monitoring() {
       const data = await fetchSystemHealth();
       setSystemHealth(data);
     } catch {
-      // health fetch failed — keep last known state
+      // health fetch failed
     } finally {
       setLoadingHealth(false);
     }
@@ -88,35 +89,37 @@ export default function Monitoring() {
     if (!accessToken) return;
     const socket = getSocket(accessToken);
 
-    const onAlertNew = (alert: Alert) => {
-      setAlerts((prev) => [alert, ...prev]);
-    };
-    const onAlertUpdated = (alert: Alert) => {
-      updateAlert(alert.id, alert);
-    };
-    const onHealthUpdate = (health: SystemHealth) => {
-      setSystemHealth(health);
-    };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const onAlertNew = (alert: Alert) => addAlert(alert);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const onAlertUpdated = (alert: Alert) => updateAlert(alert.id, alert);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const onHealthUpdate = (health: SystemHealth) => setSystemHealth(health);
 
-    socket.on('alert:new', onAlertNew);
-    socket.on('alert:updated', onAlertUpdated);
-    socket.on('health:update', onHealthUpdate);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    socket.on('alert:new', onAlertNew as any);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    socket.on('alert:updated', onAlertUpdated as any);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    socket.on('health:update', onHealthUpdate as any);
 
     socketCleanupRef.current = [
-      () => socket.off('alert:new', onAlertNew),
-      () => socket.off('alert:updated', onAlertUpdated),
-      () => socket.off('health:update', onHealthUpdate),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      () => socket.off('alert:new', onAlertNew as any),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      () => socket.off('alert:updated', onAlertUpdated as any),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      () => socket.off('health:update', onHealthUpdate as any),
     ];
 
     return () => {
       socketCleanupRef.current.forEach((fn) => fn());
     };
-  }, [accessToken, updateAlert, setAlerts, setSystemHealth]);
+  }, [accessToken, addAlert, updateAlert, setSystemHealth]);
 
   async function handleAcknowledge(id: string) {
-    if (!accessToken) return;
     try {
-      const updated = await acknowledgeAlert(id, accessToken);
+      const updated = await acknowledgeAlert(id);
       updateAlert(id, updated);
     } catch {
       setAlertsError("Impossible d'acquitter l'alerte.");
@@ -124,9 +127,8 @@ export default function Monitoring() {
   }
 
   async function handleResolve(id: string) {
-    if (!accessToken) return;
     try {
-      const updated = await resolveAlert(id, accessToken);
+      const updated = await resolveAlert(id);
       updateAlert(id, updated);
     } catch {
       setAlertsError("Impossible de r\u00e9soudre l'alerte.");
@@ -148,7 +150,7 @@ export default function Monitoring() {
             Monitoring Syst\u00e8me
           </h1>
           <p className="text-slate-500 text-sm mt-0.5">
-            Sant\u00e9 du syst\u00e8me et alertes &middot;{' '}
+            Sant\u00e9 du syst\u00e8me et alertes \u00b7{' '}
             <span className="arabic-inline">\u0635\u062d\u0629 \u0627\u0644\u0646\u0638\u0627\u0645 \u0648\u0627\u0644\u062a\u0646\u0628\u064a\u0647\u0627\u062a</span>
           </p>
         </div>
