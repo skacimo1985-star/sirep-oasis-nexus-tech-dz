@@ -3,7 +3,6 @@ import {
   Pencil,
   Trash2,
   ShieldCheck,
-  Eye,
   Search,
   ChevronLeft,
   ChevronRight,
@@ -33,15 +32,15 @@ interface UserTableProps {
 }
 
 const roleStyles: Record<string, string> = {
-  admin:    'badge-danger',
+  admin: 'badge-danger',
   operator: 'badge-warning',
-  viewer:   'badge-info',
+  viewer: 'badge-info',
 };
 
 const roleLabels: Record<string, string> = {
-  admin:    'Admin',
-  operator: 'Opérateur',
-  viewer:   'Observateur',
+  admin: 'Admin',
+  operator: 'Op\u00e9rateur',
+  viewer: 'Observateur',
 };
 
 const PAGE_SIZE = 10;
@@ -53,8 +52,8 @@ export default function UserTable({
   onDelete,
   onToggleStatus,
 }: UserTableProps) {
-  const [search, setSearch]   = useState('');
-  const [page, setPage]       = useState(1);
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
   const [roleFilter, setRole] = useState<string>('all');
 
   const filtered = users.filter((u) => {
@@ -66,10 +65,10 @@ export default function UserTable({
   });
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const paged      = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   function formatDate(iso?: string) {
-    if (!iso) return '—';
+    if (!iso) return '\u2014';
     try {
       return format(parseISO(iso), 'dd MMM yyyy, HH:mm', { locale: fr });
     } catch {
@@ -85,7 +84,7 @@ export default function UserTable({
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input
             type="search"
-            placeholder="Rechercher un utilisateur…"
+            placeholder="Rechercher un utilisateur\u2026"
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
             className="input-field pl-9"
@@ -96,9 +95,9 @@ export default function UserTable({
           onChange={(e) => { setRole(e.target.value); setPage(1); }}
           className="input-field w-40"
         >
-          <option value="all">Tous les rôles</option>
+          <option value="all">Tous les r\u00f4les</option>
           <option value="admin">Admin</option>
-          <option value="operator">Opérateur</option>
+          <option value="operator">Op\u00e9rateur</option>
           <option value="viewer">Observateur</option>
         </select>
       </div>
@@ -110,10 +109,10 @@ export default function UserTable({
             <tr>
               <th>Utilisateur</th>
               <th>Email</th>
-              <th>Rôle</th>
+              <th>R\u00f4le</th>
               <th>Statut</th>
               <th>2FA</th>
-              <th>Dernière connexion</th>
+              <th>Derni\u00e8re connexion</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -132,7 +131,7 @@ export default function UserTable({
               <tr>
                 <td colSpan={7} className="text-center py-10 text-slate-400">
                   <UserCircle className="w-10 h-10 mx-auto mb-2 text-slate-200" />
-                  Aucun utilisateur trouvé
+                  Aucun utilisateur trouv\u00e9
                 </td>
               </tr>
             ) : (
@@ -152,7 +151,7 @@ export default function UserTable({
                       {roleLabels[user.role]}
                     </span>
                   </td>
-                  <td className="px-4 py-3">
+                  <td>
                     <button
                       onClick={() => onToggleStatus(user)}
                       className={clsx(
@@ -161,32 +160,28 @@ export default function UserTable({
                           ? 'badge-success hover:bg-red-100 hover:text-red-700'
                           : 'badge-neutral hover:bg-oasis-100 hover:text-oasis-700'
                       )}
-                      title={user.isActive ? 'Désactiver' : 'Activer'}
+                      title={user.isActive ? 'D\u00e9sactiver' : 'Activer'}
                     >
                       {user.isActive ? 'Actif' : 'Inactif'}
                     </button>
                   </td>
-                  <td className="px-4 py-3">
+                  <td>
                     {user.twoFactorEnabled ? (
-                      <span aria-label="2FA active">
-                        <ShieldCheck className="w-4 h-4 text-oasis-600" />
-                      </span>
+                      <ShieldCheck className="w-4 h-4 text-oasis-600" />
                     ) : (
-                      <span className="text-slate-300 text-xs">—</span>
+                      <span className="text-slate-300">\u2014</span>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">
-                    {formatDate(user.lastLoginAt)}
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-1 justify-end">
+                  <td className="text-slate-500 text-sm">{formatDate(user.lastLoginAt)}</td>
+                  <td>
+                    <div className="flex items-center gap-1">
                       <button
                         onClick={() => onEdit(user)}
                         className="p-1.5 rounded-lg hover:bg-oasis-50 text-slate-400 hover:text-oasis-600 transition-colors"
                         title="Modifier"
                         aria-label={`Modifier ${user.name}`}
                       >
-                        <Pencil className="w-3.5 h-3.5" />
+                        <Pencil className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => onDelete(user)}
@@ -194,7 +189,7 @@ export default function UserTable({
                         title="Supprimer"
                         aria-label={`Supprimer ${user.name}`}
                       >
-                        <Trash2 className="w-3.5 h-3.5" />
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   </td>
@@ -207,16 +202,16 @@ export default function UserTable({
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="p-4 border-t border-slate-200 flex items-center justify-between text-sm text-slate-500">
+        <div className="flex items-center justify-between text-sm text-slate-500">
           <span>
-            {filtered.length} utilisateur(s) — page {page}/{totalPages}
+            {filtered.length} utilisateur(s) \u2014 page {page}/{totalPages}
           </span>
           <div className="flex gap-1">
             <button
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1}
               className="p-1.5 rounded-lg hover:bg-slate-100 disabled:opacity-40 transition-colors"
-              aria-label="Page précédente"
+              aria-label="Page pr\u00e9c\u00e9dente"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
