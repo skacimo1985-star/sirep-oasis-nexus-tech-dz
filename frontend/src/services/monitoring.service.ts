@@ -4,7 +4,7 @@ import type { Sensor, Alert, DashboardStats, SystemHealth } from '@/store/dataSt
 
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL ?? '';
 
-/* ── REST API calls ─────────────────────────────────────────── */
+/* ── REST API calls ────────────────────────────────────────────── */
 
 export async function fetchSensors(): Promise<Sensor[]> {
   const { data } = await apiClient.get<{ data: Sensor[] }>('/sensors');
@@ -91,7 +91,7 @@ export async function fetchThingSpeakData(
   return data.data;
 }
 
-/* ── Socket.io connection ───────────────────────────────────── */
+/* ── Socket.io connection ──────────────────────────────────── */
 
 export type SocketEventMap = {
   'sensor:update': Sensor;
@@ -112,7 +112,6 @@ export function getSocket(token: string): Socket {
     reconnectionAttempts: 5,
     reconnectionDelay: 2000,
   });
-
   return socketInstance;
 }
 
@@ -129,6 +128,8 @@ export function onSocketEvent<K extends keyof SocketEventMap>(
 ): () => void {
   const socket = socketInstance;
   if (!socket) return () => undefined;
-  socket.on(event, handler as Parameters<typeof socket.on>[1]);
-  return () => socket.off(event, handler as Parameters<typeof socket.off>[1]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const rawHandler = handler as (...args: any[]) => void;
+  socket.on(event as string, rawHandler);
+  return () => socket.off(event as string, rawHandler);
 }
