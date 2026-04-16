@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useCallback } from 'react';
 
 interface AuthContextValue {
@@ -10,21 +11,20 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [accessToken, setAccessTokenState] = useState<string | null>(
-    () => localStorage.getItem('accessToken')
+    localStorage.getItem('access_token')
   );
 
   const setAccessToken = useCallback((token: string | null) => {
     setAccessTokenState(token);
     if (token) {
-      localStorage.setItem('accessToken', token);
+      localStorage.setItem('access_token', token);
     } else {
-      localStorage.removeItem('accessToken');
+      localStorage.removeItem('access_token');
     }
   }, []);
 
   const logout = useCallback(() => {
     setAccessToken(null);
-    localStorage.removeItem('refreshToken');
   }, [setAccessToken]);
 
   return (
@@ -37,7 +37,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 export function useAuth(): AuthContextValue {
   const ctx = useContext(AuthContext);
   if (!ctx) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error('useAuth must be used within AuthProvider');
   }
   return ctx;
 }
