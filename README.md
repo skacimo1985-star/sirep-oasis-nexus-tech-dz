@@ -1,112 +1,74 @@
 # SIREP OASIS NEXUS WEFEH DZ
 
-> **منصة رقمية ذكية لإدارة الواحات الصحراوية بشكل مستدام**  
-> Smart Integrated Renewable Energy Platform 
+> **منصة رقمية ذكية لإدارة الواحات الصحراوية بشكل مستدام**
+
+> Smart Integrated Renewable Energy Platform
 ---
 
 ## Fondateur & Propriétaire
 
-Je soussigné **MAHROUG ERRAS BELKACEM** (dit *Mahroug Er-Rass*),  
-Ingénieur en systèmes automatisés & énergies renouvelables,  
-Auto-entrepreneur en services numériques et design de produits – Algérie,  
+Je soussigné **بلقاسم محروق الراس** (Fondateur & CEO),
+Ingénieur en systèmes automatisés & énergies renouvelables,
+Auto-entrepreneur en services numériques et design de produits - Algérie,
 suis le **fondateur, concepteur et propriétaire unique** du concept, de la marque et de la plateforme **SIREP OASIS NEXUS TECH DZ**.
 
 ---
 
 ## Vision
 
-Valoriser les oasis sahariennes comme territoires pilotes de la transition énergétique, hydrique et agricole, en connectant agriculteurs, chercheurs, collectivités locales et investisseurs via une plateforme SaaS intégrée.
-
----
+Notre vision est de transformer les oasis algériennes en modèles de résilience climatique grâce à la technologie IoT, l'énergie solaire et l'intelligence artificielle, tout en respectant la souveraineté numérique nationale.
 
 ## Architecture du Projet
 
 ### Module 1 – Energie Renouvelable
-- Supervision et optimisation des systèmes solaires PV et thermiques (CSP)
-- Gestion du stockage (batteries, stockage mécanique)
-- Tableaux de bord SCADA temps réel
+Gestion intelligente des panneaux solaires et stockage d'énergie.
 
 ### Module 2 – Eau & Irrigation Intelligente
-- Capteurs IoT de mesure de l'humidité du sol et de débit
-- Cartes d'irrigation automatisées et alertes hydrologiques
-- Optimisation de la consommation d'eau par zone
+Optimisation de la consommation d'eau via capteurs d'humidité et vannes connectées.
 
 ### Module 3 – Agriculture & Biodiversité Oasienne
-- Suivi des cultures phoenicicoles et maraîchères
-- Plateforme de partage de données agricoles avec les laboratoires
-- Recommandations agronomiques basées sur l'IA
+Suivi de la santé des palmiers et cultures intercalaires.
 
 ### Module 4 – Tourisme & Patrimoine
-- Cartographie numérique des oasis et des circuits touristiques
-- Promotion du patrimoine saharien via des outils numériques
+Valorisation du patrimoine oasien via des services numériques.
 
 ### Module 5 – Recherche & Data
-- Collecte et centralisation des données oasiennes
-- Passerelles avec universités, centres de recherche et ONGs
-- Rapports techniques automatisés
+Collecte de données pour les centres de recherche et universités.
 
 ### Module 6 – Services Numériques
-- Marketplace de services liés aux oasis
-- Formation à distance pour les agriculteurs et gestionnaires
-- Consulting et études de faisabilité
+Plateforme de gestion administrative et commerciale pour les agriculteurs.
 
 ---
 
 ## Projet Pilote : Oasis de Cheikh Amoud – Algérie
-
-Le projet SIREP OASIS NEXUS TECH DZ est développé et testé en priorité sur l'oasis de Cheikh Amoud comme territoire pilote, intégrant les conditions réelles du terrain saharien algérien.
+Le premier site d'application de la technologie SIREP NEXUS.
 
 ---
 
 ## Cadre Légal & Statut
-
-- **Statut juridique** : Auto-entrepreneur en Algérie (Loi 22-23)
-- **Domaines d'activité** : Services numériques, ingénierie, design, consulting en énergies renouvelables et agriculture intelligente
-- **Email professionnel** : skacimo1985@gmail.com
-- **Localisation** : Algérie
+- **Conformité :** Loi 15-04 (Données personnelles) & Décret 20-403 (Sécurité des systèmes).
+- **Propriété :** Marque et modèle déposés (INAPI).
+- **Contact :** skacimo1985@gmail.com
 
 ---
 
 ## Engagements Ethiques
-
-Toutes les activités, partenariats et financements du projet sont recherchés dans le respect :
-- Des **lois algériennes** en vigueur
-- Des **principes de la finance islamique** (interdiction du riba, du gharar et de l'injustice)
-- Des **objectifs nationaux** de transition énergétique, sécurité alimentaire et développement durable
-- Des **ODD de l'ONU** : ODD 2, 6, 7, 8, 9, 13, 15
+- Protection de l'environnement.
+- Soutien au développement local.
+- Sécurité et confidentialité des données.
 
 ---
 
 ## Propriete Intellectuelle & Droits
-
-> **AVERTISSEMENT LEGAL :**  
-> L'ensemble des idées, textes, schémas, maquettes, codes sources, présentations, études de faisabilité, noms commerciaux, logos et documents liés à **SIREP OASIS NEXUS TECH DZ** sont des œuvres originales protégées par :
-> - La loi algérienne sur la propriété intellectuelle
-> - Les conventions internationales sur le droit d'auteur (Convention de Berne)
-> - Les droits de marque (dépôt en cours auprès de l'INAPI – Algérie)
->
-> Toute utilisation, reproduction, adaptation ou exploitation, partielle ou totale, sans accord écrit préalable du fondateur est strictement interdite et poursuivie.
+Tous les codes, designs et concepts sont la propriété exclusive de **بلقاسم محروق الراس**. Toute reproduction sans autorisation est interdite.
 
 ---
 
 ## Contact & Partenariats
-
-Pour toute proposition de partenariat, financement, collaboration académique ou contrat de service :
-
-- **Email** : skacimo1985@gmail.com
-- **GitHub** : https://github.com/skacimo1985-star
-- **Site web** : https://skacimo1985-star.github.io/sirep-amoud/
+Pour toute information ou partenariat :
+📧 **skacimo1985@gmail.com**
+🌐 [GitHub](https://github.com/skacimo1985-star)
+📍 [Oasis Amoud – Site Pilote](https://skacimo1985-star.github.io/sirep-amoud/)
 
 ---
-
-## Liens Utiles
-
-- [Oasis Amoud – Site Pilote](https://skacimo1985-star.github.io/sirep-amoud/)
-- [Startup DZ](https://startup.dz)
-- [ASF Algérie](https://www.asf.dz)
-- [INAPI – Dépôt de marque](https://www.inapi.org)
-
----
-
-*© 2026 **MAHROUG ERRAS BELKACEM** – SIREP OASIS NEXUS TECH DZ – Tous droits réservés.*  
-*جميع الحقوق محفوظة لصاحبها ومؤسسها بلقاسم محروق الراس – 2026*
+© 2026 SIREP OASIS NEXUS TECH DZ – Tous droits réservés.
