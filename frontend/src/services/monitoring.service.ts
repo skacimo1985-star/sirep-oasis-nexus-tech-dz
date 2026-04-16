@@ -122,16 +122,15 @@ export function disconnectSocket(): void {
   }
 }
 
-// fix: use typed overload via casting to avoid FallbackToUntypedListener mismatch
 export function onSocketEvent<K extends keyof SocketEventMap>(
   event: K,
   handler: (data: SocketEventMap[K]) => void
 ): () => void {
   if (!socketInstance) return () => undefined;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (socketInstance as Socket<any>).on(event, handler);
+  socketInstance.on(event as string, handler as (...args: any[]) => void);
   return () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (socketInstance as Socket<any>)?.off(event, handler);
+    socketInstance?.off(event as string, handler as (...args: any[]) => void);
   };
 }
