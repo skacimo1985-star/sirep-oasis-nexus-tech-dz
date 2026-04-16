@@ -1,20 +1,21 @@
 import { useEffect, useCallback, useRef } from 'react';
-import { Activity, RefreshCw, Wifi } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Activity, RefreshCw } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { useDataStore } from '@/store/dataStore';
+import type { Alert, SystemHealth } from '@/store/dataStore';
 import {
   fetchSystemHealth,
   fetchAlerts,
   acknowledgeAlert,
   resolveAlert,
   getSocket,
-  disconnectSocket,
-  onSocketEvent,
 } from '@/services/monitoring.service';
 import AlertsPanel from '@/components/Monitoring/AlertsPanel';
 import SystemHealthDisplay from '@/components/Monitoring/SystemHealth';
 
 export default function Monitoring() {
+  const navigate = useNavigate();
   const { accessToken } = useAuthStore();
 
   const {
@@ -24,7 +25,6 @@ export default function Monitoring() {
     isLoadingHealth,
     setAlerts,
     updateAlert,
-    addAlert,
     setSystemHealth,
     setLoadingAlerts,
     setLoadingHealth,
@@ -32,7 +32,6 @@ export default function Monitoring() {
   } = useDataStore();
 
   const socketCleanupRef = useRef<(() => void)[]>([]);
-  const lastHealthRef    = useRef<string>('');
 
   const loadAlerts = useCallback(async () => {
     setLoadingAlerts(true);
@@ -80,7 +79,7 @@ export default function Monitoring() {
     const interval = setInterval(() => {
       void loadAlerts();
       void loadHealth();
-    }, 30000);
+    }, 30_000);
     return () => clearInterval(interval);
   }, [accessToken, loadAlerts, loadHealth]);
 
@@ -88,24 +87,31 @@ export default function Monitoring() {
   useEffect(() => {
     if (!accessToken) return;
     const socket = getSocket(accessToken);
-    socket.on('alert:new', (alert: Alert) => {
+
+    const onAlertNew = (alert: Alert) => {
       setAlerts((prev) => [alert, ...prev]);
-    });
-    socket.on('alert:updated', (alert: Alert) => {
+    };
+    const onAlertUpdated = (alert: Alert) => {
       updateAlert(alert.id, alert);
-    });
-    socket.on('health:update', (health: SystemHealth) => {
+    };
+    const onHealthUpdate = (health: SystemHealth) => {
       setSystemHealth(health);
-    });
-    socketCleanupRef.current = () => {
-      socket.off('alert:new');
-      socket.off('alert:updated');
-      socket.off('health:update');
     };
+
+    socket.on('alert:new', onAlertNew);
+    socket.on('alert:updated', onAlertUpdated);
+    socket.on('health:update', onHealthUpdate);
+
+    socketCleanupRef.current = [
+      () => socket.off('alert:new', onAlertNew),
+      () => socket.off('alert:updated', onAlertUpdated),
+      () => socket.off('health:update', onHealthUpdate),
+    ];
+
     return () => {
-      socketCleanupRef.current?.();
+      socketCleanupRef.current.forEach((fn) => fn());
     };
-  }, [accessToken, updateAlert]);
+  }, [accessToken, updateAlert, setAlerts, setSystemHealth]);
 
   async function handleAcknowledge(id: string) {
     if (!accessToken) return;
@@ -113,7 +119,7 @@ export default function Monitoring() {
       const updated = await acknowledgeAlert(id, accessToken);
       updateAlert(id, updated);
     } catch {
-      setError('Failed to acknowledge alert');
+      setAlertsError("Impossible d'acquitter l'alerte.");
     }
   }
 
@@ -123,7 +129,7 @@ export default function Monitoring() {
       const updated = await resolveAlert(id, accessToken);
       updateAlert(id, updated);
     } catch {
-      setError('Failed to resolve alert');
+      setAlertsError("Impossible de r\u00e9soudre l'alerte.");
     }
   }
 
@@ -139,18 +145,17 @@ export default function Monitoring() {
         <div>
           <h1 className="page-title flex items-center gap-2">
             <Activity className="w-6 h-6 text-oasis-600" />
-            Monitoring Système
+            Monitoring Syst\u00e8me
           </h1>
           <p className="text-slate-500 text-sm mt-0.5">
-            Santé du système et alertes ·{' '}
-            <span className="arabic-inline">صحة النظام والتنبيهات</span>
+            Sant\u00e9 du syst\u00e8me et alertes &middot;{' '}
+            <span className="arabic-inline">\u0635\u062d\u0629 \u0627\u0644\u0646\u0638\u0627\u0645 \u0648\u0627\u0644\u062a\u0646\u0628\u064a\u0647\u0627\u062a</span>
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-oasis-50 text-oasis-700 text-xs font-medium">
-            <Wifi className="w-3.5 h-3.5" />
-            Temps réel
-          </div>
+          <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-oasis-50 text-oasis-700 text-xs font-medium">
+            Temps r\u00e9el
+          </span>
           <button
             onClick={handleRefresh}
             disabled={isLoadingAlerts || isLoadingHealth}
@@ -168,14 +173,14 @@ export default function Monitoring() {
 
       {/* Critical alert banner */}
       {criticalCount > 0 && (
-        <div className="rounded-xl bg-red-600 text-white px-5 py-3 flex items-center gap-3 animate-pulse-slow">
+        <div className="rounded-xl bg-red-600 text-white px-5 py-3 flex items-center gap-3">
           <Activity className="w-5 h-5 shrink-0" />
           <div>
             <p className="font-semibold">
-              ⚠ {criticalCount} alerte(s) critique(s) active(s)
+              \u26a0 {criticalCount} alerte(s) critique(s) active(s)
             </p>
             <p className="text-sm text-red-200 arabic-inline">
-              {criticalCount} تنبيه حرج نشط
+              {criticalCount} \u062a\u0646\u0628\u064a\u0647 \u062d\u0631\u062c \u0646\u0634\u0637
             </p>
           </div>
         </div>
@@ -183,15 +188,17 @@ export default function Monitoring() {
 
       {/* Two-column layout */}
       <div className="grid grid-cols-1 xl:grid-cols-5 gap-6">
-        {/* System health — left 2 cols */}
+        {/* System health */}
         <div className="xl:col-span-2 card">
           <div className="card-header">
             <div>
               <h2 className="section-title flex items-center gap-2">
                 <Activity className="w-4 h-4 text-oasis-600" />
-                Santé du Système
+                Sant\u00e9 du Syst\u00e8me
               </h2>
-              <p className="text-xs text-slate-400 arabic-inline">صحة النظام</p>
+              <span className="text-xs text-slate-400 arabic-inline">
+                \u0635\u062d\u0629 \u0627\u0644\u0646\u0638\u0627\u0645
+              </span>
             </div>
           </div>
           <SystemHealthDisplay
@@ -201,19 +208,19 @@ export default function Monitoring() {
           />
         </div>
 
-        {/* Alerts panel — right 3 cols */}
+        {/* Alerts panel */}
         <div className="xl:col-span-3 card">
           <div className="card-header">
             <div>
               <h2 className="section-title flex items-center gap-2">
                 Alertes
                 <span className="text-xs font-normal text-slate-400 arabic-inline">
-                  التنبيهات
+                  \u0627\u0644\u062a\u0646\u0628\u064a\u0647\u0627\u062a
                 </span>
               </h2>
             </div>
             {activeCount > 0 && (
-              <span className="badge badge-danger animate-pulse">
+              <span className="badge badge-danger">
                 {activeCount} active(s)
               </span>
             )}
